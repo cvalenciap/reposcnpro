@@ -15,70 +15,169 @@ and open the template in the editor.
         <script src="js/jquery.min.js"></script>
         <script>
 
-                    var flag = 0;
-                    function onSuccess(googleUser) {
-                    console.log("entre");
-                            var profile = googleUser.getBasicProfile();
-                            gapi.client.load('plus', 'v1', function () {
-                            var request = gapi.client.plus.people.get({
-                            'userId': 'me'
-                            });
-                                    //Display the user details
-                                    request.execute(function (resp) {
-                                    //loadDriveApi();
-                                    var profileHTML = '<div class="profile"><div class="head">Usuario ' + resp.name.givenName + '! <a href="javascript:void(0);" onclick="signOut();">Salir</a></div>';
-                                            profileHTML += '<img src="' + resp.image.url + '"/><div class="proDetails"><p>' + resp.displayName + '</p><p>' + resp.emails[0].value + '</p><p>' + resp.gender + '</p><p>' + resp.id + '</p><p><a href="' + resp.url + '">View Google+ Profile</a></p></div></div>' + ' <p><a href="javascript:void(0);" onclick="loadDriveApi();">Ver Archivos del Google Drive</a></p></div>';
-                                            $('.userContent').html(profileHTML);
-                                            $('#gSignIn').slideUp('slow');
-                                    });
-                            });
-                    }
+            var flag = 0;
+            function onSuccess(googleUser) {
+                console.log("entre");
+                var profile = googleUser.getBasicProfile();
+                gapi.client.load('plus', 'v1', function () {
+                    var request = gapi.client.plus.people.get({
+                        'userId': 'me'
+                    });
+                    //Display the user details
+                    request.execute(function (resp) {
+                        //loadDriveApi();
+                        var profileHTML = '<div class="profile"><div class="head">Usuario ' + resp.name.givenName + '! <a href="javascript:void(0);" onclick="signOut();">Salir</a></div>';
+                        profileHTML += '<img src="' + resp.image.url + '"/><div class="proDetails"><p>' + resp.displayName + '</p><p>' + resp.emails[0].value + '</p><p>' + resp.gender + '</p><p>' + resp.id + '</p><p><a href="' + resp.url + '">View Google+ Profile</a></p></div></div>' + ' <p><a href="javascript:void(0);" onclick="loadDriveApi();">Ver Archivos del Google Drive</a></p></div>';
+                        $('.userContent').html(profileHTML);
+                        $('#gSignIn').slideUp('slow');
+                    });
+                });
+
+
+            }
             function onFailure(error) {
-            alert(error);
+                alert(error);
             }
 
             /**
              * Load Drive API client library.
              */
             function loadDriveApi() {
-            gapi.client.load('drive', 'v3', listFiles);
+                gapi.client.load('drive', 'v3', listFiles);
             }
 
             /**
              * Print files.
              */
             function listFiles() {
-            gapi.client.load('drive', 'v3', listFiles);
-                    var request = gapi.client.drive.files.list({
+                var request = gapi.client.drive.files.list({
                     'pageSize': 10,
                     'fields': "nextPageToken, files(id, name)"
-                    });
-                    request.execute(function (resp) {
-                    appendPre('Archivos:');
+                });
+                /*request.execute(function (resp) {
+                 appendPre('Archivos:');
+                 var files = resp.files;
+                 if (flag == 0) {
+                 if (files && files.length > 0 && flag == 0) {
+                 for (var i = 0; i < files.length; i++) {
+                 
+                 var file = files[i];
+                 appendPre(file.name + ' (' + file.id + ')');
+                 }
+                 flag = 1;
+                 } else {
+                 console.log("no archivos");
+                 appendPre('No files found.');
+                 }
+                 }
+                 });*/
+                request.execute(function (resp) {
+                    // Obtener la referencia del elemento body
+                    var body = document.getElementsByTagName("body")[0];
+
+                    // Crea un elemento <table> y un elemento <tbody>
+                    var tabla = document.createElement("table");
+                    var tblBody = document.createElement("tbody");
                     var files = resp.files;
-                    if (flag == 0){
-                        if (files && files.length > 0 && flag == 0) {
-                            for (var i = 0; i < files.length; i++) {
-                                
-                                var file = files[i];
-                                appendPre(file.name + ' (' + file.id + ')');
+                    // Crea las celdas
+                    for (var i = 0; i < files.length + 1; i++) {
+                        // Crea las hileras de la tabla
+                        var hilera = document.createElement("tr");
+
+                        for (var j = 0; j < 3; j++) {
+                            // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+                            // texto sea el contenido de <td>, ubica el elemento <td> al final
+                            // de la hilera de la tabla
+                            if (i == 0 && j == 0) {
+                                var celda = document.createElement("td");
+                                var textoCelda = document.createTextNode("Nº");
+                                celda.appendChild(textoCelda);
+                                hilera.appendChild(celda);
+                            } else {
+                                if (i == 0 && j == 1) {
+                                    var celda = document.createElement("td");
+                                    var textoCelda = document.createTextNode("Nombre del Archivo");
+                                    celda.appendChild(textoCelda);
+                                    hilera.appendChild(celda);
+                                } else {
+                                    if (i == 0 && j == 2) {
+                                        var celda = document.createElement("td");
+                                        var textoCelda = document.createTextNode(" ");
+                                        celda.appendChild(textoCelda);
+                                        hilera.appendChild(celda);
+                                    } else {
+                                        if (j==0){
+                                            var celda = document.createElement("td");
+                                            var textoCelda = document.createTextNode(i);
+                                            celda.appendChild(textoCelda);
+                                            hilera.appendChild(celda);
+                                        }else{
+                                            if(j==1){
+                                                var celda = document.createElement("td");
+                                                var aux = i-1;
+                                                var file = files[aux]; 
+                                                var textoCelda = document.createTextNode(file.name);
+                                                celda.appendChild(textoCelda);
+                                                hilera.appendChild(celda);
+                                            }else{
+                                                if(j==2){
+                                                    var celda = document.createElement("td");
+                                                    var boton = document.createElement("button");
+//                                                    console.log("valor de boton "+boton.value);
+                                                    //var textoCelda = document.createTextNode("descargar");
+                                                    //celda.appendChild(textoCelda);
+                                                    var aux = i-1;
+                                                    var file = files[aux];
+                                                    boton.class = "descargar";
+                                                    boton.type = "button";
+                                                    boton.name = file.id;
+                                                    console.log(file.id);
+                                                    boton.innerHTML = "descargar";
+                                                    //boton.onclick = descargarArchivo;
+                                                    document.body.appendChild(boton);
+                                                    if (boton.addEventListener) {
+                                                        console.log("EN el if");
+                                                        boton.addEventListener('click', function(){
+                                                            descargarArchivo(this);
+                                                        }, false);
+                                                    } 
+                                                    celda.appendChild(boton);
+                                                    hilera.appendChild(celda);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            flag = 1;
-                        } else {
-                        console.log("no archivos");
-                                appendPre('No files found.');
-                        }
+
+                        // agrega la hilera al final de la tabla (al final del elemento tblbody)
+                        tblBody.appendChild(hilera);
                     }
-                    });
-                    
+
+                    // posiciona el <tbody> debajo del elemento <table>
+                    tabla.appendChild(tblBody);
+                    // appends <table> into <body>
+                    body.appendChild(tabla);
+                    // modifica el atributo "border" de la tabla y lo fija a "2";
+                    tabla.setAttribute("border", "2");
+                }
+//                var x = document.getElementsByClassName("descargar");
+//                var i;
+//                for (i = 0; i < x.length; i++) {
+//                    x[i].onclick = ;
+//                }
+            });
+
             }
 
-            /*function descargarArchivo(id){
-             //String fileId = "0BwwA4oUTeiV1UVNwOHItT0xfa2M";
-             OutputStream outputStream = new ByteArrayOutputStream();
-             driveService.files().get(id)
-             .executeMediaAndDownloadTo(outputStream);
-             }
+            function descargarArchivo(boton){
+                console.log("EN la funcion");
+                console.log(boton.name);
+//             String fileId = "0BwwA4oUTeiV1UVNwOHItT0xfa2M";
+//             OutputStream outputStream = new ByteArrayOutputStream();
+//             driveService.files().get(id)
+//             .executeMediaAndDownloadTo(outputStream);
+            }
              
              /**
              * Append a pre element to the body containing the given message
@@ -87,28 +186,28 @@ and open the template in the editor.
              * @param {string} message Text to be placed in pre element.
              */
             function appendPre(message) {
-                    var pre = document.getElementById('output');
-                    var textContent = document.createTextNode(message + '\n');
-                    pre.appendChild(textContent);
+                var pre = document.getElementById('output');
+                var textContent = document.createTextNode(message + '\n');
+                pre.appendChild(textContent);
             }
 
             function renderButton() {
-            gapi.signin2.render('gSignIn', {
-            'scope': 'profile email',
+                gapi.signin2.render('gSignIn', {
+                    'scope': 'profile email',
                     'width': 240,
                     'height': 50,
                     'longtitle': true,
                     'theme': 'dark',
                     'onsuccess': onSuccess,
                     'onfailure': onFailure
-            });
+                });
             }
             function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-                    auth2.signOut().then(function () {
-            $('.userContent').html('');
+                var auth2 = gapi.auth2.getAuthInstance();
+                auth2.signOut().then(function () {
+                    $('.userContent').html('');
                     $('#gSignIn').slideDown('slow');
-            });
+                });
             }
         </script>
     </head>
